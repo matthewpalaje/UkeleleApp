@@ -1,0 +1,278 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="strict-origin-when-cross-origin"><title>Uke Companion</title>
+<style>
+:root{--bg-cream:#fdfbf7;--primary-coral:#ff4b6e;--text-main:#2d2623;--text-muted:#7c7267;--border-color:#f0eae1}*{box-sizing:border-box}body{margin:auto;padding:12px 12px 70px;max-width:1100px;background:var(--bg-cream);color:var(--text-main);font:15px/1.5 system-ui,-apple-system,sans-serif}button,input,select{font:inherit}button,a,input,select{-webkit-tap-highlight-color:transparent}button{cursor:pointer;border:1px solid var(--border-color);border-radius:12px;background:#f0eae1;color:var(--text-main);min-height:44px;padding:8px 12px}button:active{transform:scale(.97)}button:focus-visible,a:focus-visible{outline:3px solid #ff9500}h1,h2,p{margin:0}h1{font-size:1.5rem;line-height:1.25}.header,.row,.song-status-bar,.tab-lyrics-header,.controls-row,.strum-container{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.header{margin:10px 0 18px}.brand{font-size:1.35rem;font-weight:800}.card{background:white;border:1px solid var(--border-color);padding:16px;border-radius:20px;margin-bottom:14px;box-shadow:0 2px 8px #0000000a}.song-header-card{background:linear-gradient(135deg,#fff5f6,#fff0e6)}.muted,.song-artist{color:var(--text-muted);font-size:.85rem}.song-artist{margin:5px 0 14px}.section-title{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#8c8275;margin-bottom:12px}.search-input,.song-select-dropdown{width:100%;padding:12px;border:1px solid var(--border-color);background:#fcfbfa;border-radius:12px;margin-bottom:12px;min-width:0}.filter-pills{display:flex;gap:8px;overflow:auto}.pill{white-space:nowrap;border-radius:24px}.pill.active,.fav-btn.active{background:var(--primary-coral);color:white}.song-status-bar{margin-bottom:12px;color:var(--text-muted);font-size:.85rem}.badge-group{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}.tag-badge{padding:4px 8px;border-radius:6px;background:#ffe0e6;color:#d91b49;font-size:.72rem;font-weight:700}.tag-difficulty{background:#e6f9f0;color:#0e9f6e}.tag-key{background:#f0ebd8;color:#8a6d1b}.controls-row{background:#ffffffcc;padding:10px;border-radius:14px}.control-group{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.key-value{color:var(--primary-coral);font-weight:800;min-width:24px;text-align:center}.tempo-slider{width:70px;accent-color:var(--primary-coral)}.app-workspace{display:grid;gap:14px;grid-template-columns:1fr}.left-panel,.right-panel{min-width:0}body.side-by-side-mode .app-workspace{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}@media(min-width:850px){body:not(.stacked-forced) .app-workspace{grid-template-columns:360px minmax(0,1fr)}}.chord-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:8px}.chord-box{background:#fdfbf7;padding:8px 4px}.chord-box-name{font-weight:800;color:#e03a5b}.chord-svg{display:block;width:60px;height:80px;margin:auto}.strum-pattern-text{font:bold 1.1rem monospace;letter-spacing:2px}.btn-action,.audio-unlock-banner{background:linear-gradient(135deg,#ff9500,#ff7b00);color:white;border:0;font-weight:700}.audio-unlock-banner{width:100%;margin-bottom:12px;padding:12px}.tab-controls{display:flex;gap:6px;flex-wrap:wrap}.content-box{background:#fcfbfa;border:1px solid var(--border-color);border-radius:14px;padding:14px;font:.9rem/1.8 monospace;white-space:pre-wrap;overflow-wrap:anywhere;max-height:480px;overflow-y:auto;margin-top:12px}.chord-inline{padding:1px 4px;color:#e03a5b;background:#ffe6ec;border-radius:4px;font:inherit;font-weight:800;min-height:0;border:0}.tuner-card{background:linear-gradient(135deg,#2d2623,#1a1615);color:white}.tuner-pegs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.tuner-peg{background:#3d352e;color:white;border-color:#544940;padding:10px 4px}.tuner-peg.active{background:var(--primary-coral)}.peg-note{font-size:1.2rem;font-weight:800}.peg-freq{font-size:.7rem;color:#c9c1b7}.toast{position:fixed;bottom:20px;left:50%;transform:translate(-50%,100px);background:#2d2623ed;color:white;padding:10px 16px;border-radius:20px;transition:transform .2s;z-index:20;pointer-events:none;max-width:90vw}.toast.show{transform:translate(-50%,0)}
+</style></head><body>
+<button id="audioUnlockBanner" class="audio-unlock-banner" onclick="unlockAudioContext()">🔊 Tap to enable Ukulele Audio Synth</button>
+<header class="header"><div class="brand">🎸 Uke Companion</div><button onclick="toggleLayoutMode()" id="layoutToggleBtn">📖 Side-by-Side</button></header>
+<section class="card"><input type="search" class="search-input" id="searchInput" placeholder="Search songs, artists, chords…" aria-label="Search songs" oninput="handleSearch()"><div class="filter-pills"><button class="pill active" onclick="filterCategory('all',this)">All (17)</button><button class="pill" onclick="filterCategory('glee',this)">🎤 Glee Hits</button><button class="pill" onclick="filterCategory('4chord',this)">⚡ 4-Chords</button><button class="pill" onclick="filterCategory('pop',this)">🎶 Pop Staples</button><button class="pill" onclick="filterCategory('fav',this)">♥ Saved</button></div><p class="muted" id="searchStatus" role="status"></p></section>
+<section class="card song-header-card"><div class="song-status-bar"><span id="songCountText"></span><div><button onclick="navigateSong(-1)">◄ Prev</button> <button onclick="navigateSong(1)">Next ►</button></div></div><select class="song-select-dropdown" id="songDropdown" aria-label="Choose song" onchange="selectSongFromDropdown(this.value)"></select><div id="songBadges" class="badge-group"></div><div class="row"><h1 id="songTitle"></h1><button id="favBtn" class="fav-btn" aria-label="Save song" onclick="toggleFavorite()">♥</button></div><div id="songArtist" class="song-artist"></div><div class="controls-row"><div class="control-group"><span>Key:</span><button aria-label="Transpose down" onclick="transposeKey(-1)">−</button><span id="transposeVal" class="key-value">0</span><button aria-label="Transpose up" onclick="transposeKey(1)">+</button></div><div class="control-group"><label for="tempoSlider">Tempo:</label><input id="tempoSlider" class="tempo-slider" type="range" min="60" max="180" value="118" oninput="updateTempo(this.value)"><span id="tempoVal" class="muted"></span></div></div></section>
+<div class="app-workspace"><div class="left-panel"><section class="card"><div class="section-title">Interactive chords · Tap to play</div><div class="chord-grid" id="chordGrid"></div></section><section class="card"><div class="section-title">Strum Pattern</div><div class="strum-container"><div><div class="strum-pattern-text" id="strumPatternText"></div><div class="muted" id="strumName"></div></div><button class="btn-action" onclick="playStrumPattern()">▶ Strum Audio</button></div></section><section class="card tuner-card"><div class="section-title">Ukulele Tuner (gCEA)</div><p class="muted" id="tunerStatusText">Tap string for pitch</p><div class="tuner-pegs" id="tunerPegs"></div></section></div><div class="right-panel"><section class="card"><div class="tab-lyrics-header"><div class="section-title">Song Tab & Lyrics</div><div class="tab-controls"><button onclick="playIntroTabMelody()">▶ Play Tab</button><button id="autoScrollBtn" onclick="toggleAutoScroll()">Auto-Scroll</button><button aria-label="Smaller text" onclick="changeFontSize(-1)">A−</button><button aria-label="Larger text" onclick="changeFontSize(1)">A+</button></div></div><div class="content-box" id="lyricsContent"></div></section></div></div><div id="toast" class="toast" role="status"></div>
+<script>
+let audioCtx=null,activeTunerOsc=null,autoScrollInterval=null,isAutoScrolling=false,fontScale=.9,currentTransposeShift=0,currentSongIndex=0,filteredSongIndices=[],favorites=[],isSideBySide=false,category='all',toastTimer;
+try{const v=JSON.parse(localStorage.getItem('uke_companion_favs')||'[]');if(Array.isArray(v))favorites=v;}catch(e){}
+const CHROMATIC_NOTES=['C','C#','D','Eb','E','F','F#','G','G#','A','Bb','B'];const STRING_FREQS=[392,261.63,329.63,440];
+const CHORD_VOICINGS={C:[0,0,0,3],G:[0,2,3,2],Am:[2,0,0,0],F:[2,0,1,0],Em:[0,4,3,2],Dm:[2,2,1,0],D:[2,2,2,0],A:[2,1,0,0],E:[1,4,0,2],Bm:[4,2,2,2],Bb:[3,2,1,1],G7:[0,2,1,2],C7:[0,0,0,1],A7:[0,1,0,0],D7:[2,0,2,0],E7:[1,2,0,2],Fm:[1,0,1,3],Cm:[0,3,3,3],Gm:[0,2,3,1],Eb:[3,3,3,1]};
+const SONGS=[{"title": "Don't Stop Believin'", "artist": "Journey (Featured in Glee)", "category": "glee", "key": "C", "bpm": 118, "chords": ["C", "G", "Am", "F"], "tabMelody": [0, 0, 3, 2, 0, 2, 0, 0], "lyrics": "[C] Just a small town [G] girl,\n[Am] Living in a [F] lonely world\n[C] She took the midnight [G] train going [Am] anywhere... [F]\n\n[C] Just a city [G] boy,\n[Am] Born and raised in [F] South Detroit\n[C] He took the midnight [G] train going [Am] anywhere... [F]\n\n[Intro Tab]\nA|--3---2---0-------0---|\nE|--------------3-------|\nC|----------------------|\nG|----------------------|\n\n[Chorus]\n[C] Don't stop [G] believin'\n[Am] Hold on to that [F] feelin'\n[C] Streetlights, [G] people... [Am] [F]", "strumPattern": "\u2193  \u2193\u2191  \u2191\u2193\u2191", "strumName": "Island Strum", "difficulty": "Beginner"}, {"title": "Valerie", "artist": "Mark Ronson ft. Amy Winehouse (Glee Cast)", "category": "glee", "key": "C", "bpm": 106, "chords": ["C", "Dm", "Em", "F"], "tabMelody": [0, 2, 3, 2, 0], "lyrics": "[C] Well sometimes I go out by myself\nAnd I look across the [Dm] water\n[C] And I think of all the things, what you're doing\nAnd in my head I make a [Dm] picture\n\n[Chorus]\n[F] Why don't you come on over, [Em] Valerie?\n[F] Valerie, [Em] Valerie, [F] Valerie?", "strumPattern": "\u2193  \u2193\u2191  \u2193\u2191", "strumName": "Motown Bounce", "difficulty": "Beginner"}, {"title": "Somewhere Over The Rainbow", "artist": "Israel Kamakawiwo'ole / Glee Cast", "category": "glee", "key": "C", "bpm": 85, "chords": ["C", "Em", "F", "G", "Am"], "tabMelody": [0, 3, 2, 0, 3], "lyrics": "Ooo-ooo-ooo... [C] [Em] [F] [C]\n[F] [E7] [Am] [F]\n\n[C] Somewhere [Em] over the rainbow, [F] way up [C] high\n[F] And the [C] dreams that you dream of [G] once in a lulla-[Am]-by... [F]", "strumPattern": "\u2193  \u2193\u2191  \u2191\u2193\u2191", "strumName": "Calypso / Island", "difficulty": "Beginner"}, {"title": "Riptide", "artist": "Vance Joy", "category": "pop", "key": "Am", "bpm": 102, "chords": ["Am", "G", "C", "F"], "tabMelody": [0, 0, 2, 0], "lyrics": "[Am] I was scared of [G] dentists and the [C] dark\n[Am] I was scared of [G] pretty girls and [C] starting conversations\n[Am] Oh, all my [G] friends are turning [C] green\n\n[Chorus]\n[Am] Lady, [G] running down to the [C] riptide\nTaken away to the [Am] dark side\n[G] I got a lump in my [C] throat 'cause you're gonna sing the words wrong", "strumPattern": "\u2193  \u2193\u2191  \u2193\u2191", "strumName": "Fast Folk", "difficulty": "Beginner"}, {"title": "I'm Yours", "artist": "Jason Mraz", "category": "4chord", "key": "C", "bpm": 76, "chords": ["C", "G", "Am", "F"], "tabMelody": [0, 2, 3, 0], "lyrics": "[C] Well you done done me and you bet I felt it\nI [G] tried to be chill but you're so hot that I melted\nI [Am] fell right through the cracks\nAnd now I'm [F] trying to get back...\n\n[Chorus]\nSo [C] I won't hesitate no [G] more, no more\nIt [Am] cannot wait, I'm [F] yours!", "strumPattern": "\u2193  \u2193\u2191  \u2191\u2193\u2191", "strumName": "Reggae Off-beat", "difficulty": "Beginner"}, {"title": "Lean On Me", "artist": "Bill Withers (Glee Cast)", "category": "glee", "key": "C", "bpm": 88, "chords": ["C", "Dm", "Em", "F", "G"], "tabMelody": [0, 1, 2, 3], "lyrics": "[C] Sometimes in our [Dm] lives we all have [Em] pain\nWe all have [F] sorrow [C]\nBut if we are [Dm] wise we know that [Em] there's\nAlways [G] tomorrow\n\n[Chorus]\n[C] Lean on me, when you're not [Dm] strong\nAnd I'll be your [Em] friend, I'll help you [F] carry on...", "strumPattern": "\u2193  \u2193  \u2193  \u2193", "strumName": "Soul Quarter Strum", "difficulty": "Beginner"}, {"title": "Count On Me", "artist": "Bruno Mars", "category": "pop", "key": "C", "bpm": 88, "chords": ["C", "Em", "Am", "G", "F"], "tabMelody": [0, 2, 0, 3], "lyrics": "If you [C] ever find yourself stuck in the middle of the [Em] sea\nI'll [Am] sail the world to [G] find you\nIf you [C] ever find yourself lost in the dark and you can't [Em] see\nI'll [Am] be the light to [G] guide you\n\n[Chorus]\nYou can [F] count on me like [Em] 1, 2, 3, I'll be [Am] there\nAnd I [G] know when I need it\nI can [F] count on you like [Em] 4, 3, 2, you'll be [Am] there...", "strumPattern": "\u2193  \u2193\u2191  \u2191\u2193\u2191", "strumName": "Island Strum", "difficulty": "Beginner"}, {"title": "Fix You", "artist": "Coldplay (Glee Cast)", "category": "glee", "key": "C", "bpm": 70, "chords": ["C", "Em", "Am", "G", "F"], "tabMelody": [3, 2, 0, 0], "lyrics": "[C] When you try your [Em] best, but you don't suc-[Am]-ceed [G]\n[C] When you get what you [Em] want, but not what you [Am] need [G]\n\n[Chorus]\n[F] Lights will [G] guide you home\n[F] And i-[G]-gnite your bones\n[F] And I will [G] try to fix [C] you", "strumPattern": "\u2193   \u2193   \u2193   \u2193", "strumName": "Slow Ballad", "difficulty": "Intermediate"}, {"title": "Defying Gravity", "artist": "Wicked (Glee Cast - Lea & Chris)", "category": "glee", "key": "C", "bpm": 120, "chords": ["C", "G", "F", "Am", "Dm"], "tabMelody": [0, 3, 2, 0], "lyrics": "I'm [C] losing hold, I'm [G] flying blind\nI'm [F] stepping out into the unknown...\n\n[Chorus]\nIt's time to [C] try defying [G] gravity\nI think I'll [Am] try defying [F] gravity\nAnd you can't [Dm] pull me [G] down! [C]", "strumPattern": "\u2193  \u2193\u2191  \u2191\u2193\u2191", "strumName": "Showtune March", "difficulty": "Intermediate"}, {"title": "Keep Holding On", "artist": "Avril Lavigne (Glee Cast)", "category": "glee", "key": "G", "bpm": 80, "chords": ["G", "D", "Em", "C"], "tabMelody": [2, 0, 2, 3], "lyrics": "[G] You're not alone, [D] I'm with you\n[Em] I'm waiting for you [C]\n\n[Chorus]\nKeep [G] holding on, 'cause you know we'll [D] make it through\nWe'll [Em] make it through\nJust [C] stay strong, 'cause you know I'm [G] here for you...", "strumPattern": "\u2193  \u2193\u2191  \u2191\u2193\u2191", "strumName": "Pop Ballad", "difficulty": "Beginner"}, {"title": "Smooth Criminal", "artist": "Michael Jackson (Glee Cast)", "category": "glee", "key": "Am", "bpm": 118, "chords": ["Am", "G", "F", "E7"], "tabMelody": [0, 0, 0, 2, 0], "lyrics": "[Am] As he came into the window, it was the sound of a crescendo\n[G] He came into her apartment, left the bloodstains on the carpet\n\n[Chorus]\n[Am] Annie are you OK? So will you tell us that you're OK?\n[G] Annie are you OK? Are you OK Annie?", "strumPattern": "\u2193\u2191\u2193  \u2193\u2191\u2193", "strumName": "Staccato Beat", "difficulty": "Intermediate"}, {"title": "Hey, Soul Sister", "artist": "Train (Glee Cast)", "category": "glee", "key": "C", "bpm": 80, "chords": ["C", "G", "Am", "F"], "tabMelody": [3, 2, 0, 3], "lyrics": "[C] Your lipstick stain [G] on the front lobe of my [Am] left-side brains\nI knew I [F] wouldn't forget you... [C] [G] [Am] [F]\n\n[Chorus]\n[C] Hey soul sister, [G] ain't that Mr. [Am] Mister on the [F] radio, stereo", "strumPattern": "\u2193  \u2193\u2191  \u2191\u2193\u2191", "strumName": "Uke Bop", "difficulty": "Beginner"}, {"title": "Landslide", "artist": "Fleetwood Mac (Glee ft. Gwyneth Paltrow)", "category": "glee", "key": "C", "bpm": 80, "chords": ["C", "G", "Am", "F"], "tabMelody": [0, 2, 0, 0], "lyrics": "[C] I took my [G] love, I took it [Am] down [G]\n[C] I climbed a [G] mountain and I [Am] turned around [G]\nTill the [C] landslide [G] brought me [Am] down...", "strumPattern": "\u2193  \u2193\u2191  \u2191\u2193\u2191", "strumName": "Fingerpick Flow", "difficulty": "Beginner"}, {"title": "Hallelujah", "artist": "Leonard Cohen", "category": "beginner", "key": "C", "bpm": 60, "chords": ["C", "Am", "F", "G", "E7"], "tabMelody": [0, 0, 0, 3], "lyrics": "I've [C] heard there was a [Am] secret chord\nThat [C] David played and it [Am] pleased the Lord\n\n[Chorus]\nHalle-[F]-lujah, Halle-[Am]-lujah\nHalle-[F]-lujah, Halle-[C]-lu--[G]-oo--[C]-jah...", "strumPattern": "\u2193  \u2193\u2191\u2193\u2191", "strumName": "6/8 Arpeggio", "difficulty": "Beginner"}, {"title": "Stand By Me", "artist": "Ben E. King", "category": "4chord", "key": "C", "bpm": 118, "chords": ["C", "Am", "F", "G"], "tabMelody": [0, 2, 3, 2], "lyrics": "When the [C] night has come, and the [Am] land is dark\nAnd the [F] moon is the [G] only light we'll [C] see...\n\n[Chorus]\nSo darling, [C] darling stand by me, oh [Am] stand by me", "strumPattern": "\u2193  \u2193\u2191  \u2191\u2193\u2191", "strumName": "Classic 50s Pop", "difficulty": "Beginner"}, {"title": "Lava", "artist": "Disney Pixar Short", "category": "beginner", "key": "C", "bpm": 82, "chords": ["C", "G7", "F"], "tabMelody": [3, 2, 0, 1], "lyrics": "A long long [C] time ago, there was a [G7] volcano\nLiving all a-[F]-lone in the middle of the [C] sea [G7]\n\n[Chorus]\nI have a [C] dream I hope will come [G7] true\nThat you're here with [F] me and I'm here with [C] you [G7]", "strumPattern": "\u2193  \u2193\u2191  \u2191\u2193\u2191", "strumName": "Island Strum", "difficulty": "Beginner"}, {"title": "Can't Help Falling in Love", "artist": "Elvis Presley / Twenty One Pilots", "category": "beginner", "key": "C", "bpm": 68, "chords": ["C", "Em", "Am", "F", "G"], "tabMelody": [3, 2, 0, 0], "lyrics": "[C] Wise [Em] men [Am] say only [F] fools [C] rush [G] in\nBut [F] I [G] can't [Am] help [F] falling in [C] love [G] with [C] you...", "strumPattern": "\u2193  \u2193  \u2193", "strumName": "Waltz 3/4 Strum", "difficulty": "Beginner"}];
+const el=id=>document.getElementById(id);const pendingSounds=new Set(),soundVoices=new Set();
+function initAudioContext(){if(!audioCtx){const C=window.AudioContext||window.webkitAudioContext;if(C)audioCtx=new C();}if(audioCtx?.state==='suspended')audioCtx.resume().catch(()=>{});}
+function unlockAudioContext(){initAudioContext();if(audioCtx){el('audioUnlockBanner').hidden=true;showToast('Ukulele audio enabled');}else showToast('Audio is unavailable in this viewer. Open in a browser.');}
+function stopSounds(){for(const t of pendingSounds)clearTimeout(t);pendingSounds.clear();for(const o of soundVoices){try{o.stop();}catch(e){}}soundVoices.clear();}
+function playUkuleleString(freq,delay=0){initAudioContext();if(!audioCtx)return;const timer=setTimeout(()=>{pendingSounds.delete(timer);const t=audioCtx.currentTime,o=audioCtx.createOscillator(),g=audioCtx.createGain(),f=audioCtx.createBiquadFilter();o.type='triangle';o.frequency.value=freq;f.type='lowpass';f.frequency.setValueAtTime(1200,t);f.frequency.exponentialRampToValueAtTime(300,t+.8);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.15,t+.015);g.gain.exponentialRampToValueAtTime(.001,t+1.2);o.connect(f);f.connect(g);g.connect(audioCtx.destination);soundVoices.add(o);o.onended=()=>{soundVoices.delete(o);o.disconnect();f.disconnect();g.disconnect();};o.start(t);o.stop(t+1.2);},delay*1000);pendingSounds.add(timer);}
+function playChordSound(c){const v=CHORD_VOICINGS[c];if(!v)return;v.forEach((f,i)=>playUkuleleString(STRING_FREQS[i]*2**((f+currentTransposeShift)/12),i*.035));showToast('Playing '+transposeChordName(c,currentTransposeShift));}
+function transposeChordName(c,s){return c.replace(/^([A-G][b#]?)/,(n)=>{const i=CHROMATIC_NOTES.indexOf(n);return i<0?n:CHROMATIC_NOTES[((i+s)%12+12)%12];});}
+function renderChordSVG(c){const base=CHORD_VOICINGS[c];if(!base)return '';const shift=((currentTransposeShift%12)+12)%12,v=base.map(f=>f+shift),start=Math.max(...v)>4?Math.min(...v.filter(f=>f>0)):1;let svg='<svg class="chord-svg" viewBox="0 0 65 84" aria-label="Frets '+v.join(', ')+' on G C E A">';if(start>1)svg+='<text x="1" y="10" font-size="8">'+start+'fr</text>';for(let i=0;i<4;i++)svg+='<line x1="'+(14+i*12)+'" y1="18" x2="'+(14+i*12)+'" y2="66" stroke="#a09588"/>';for(let j=0;j<=4;j++)svg+='<line x1="14" y1="'+(18+j*12)+'" x2="50" y2="'+(18+j*12)+'" stroke="#a09588" stroke-width="'+(j===0&&start===1?3:1)+'"/>';v.forEach((f,i)=>{svg+='<circle cx="'+(14+i*12)+'" cy="'+(f===0?12:18+(f-start+.5)*12)+'" r="'+(f===0?2.2:4)+'" fill="'+(f===0?'white':'#ff4b6e')+'" stroke="#ff4b6e"/>';svg+='<text x="'+(14+i*12)+'" y="79" text-anchor="middle" font-size="8">'+['G','C','E','A'][i]+'</text>';});return svg+'</svg>';}
+function renderCurrentSong(){const s=SONGS[currentSongIndex];if(!s)return;el('songDropdown').value=currentSongIndex;el('songTitle').textContent=s.title;el('songArtist').textContent=s.artist;el('songBadges').innerHTML='<span class="tag-badge">'+(s.category==='glee'?'🎤 Glee Hit':'🎶 Uke Favourite')+'</span><span class="tag-badge tag-difficulty">'+s.difficulty+'</span><span class="tag-badge tag-key">Key: '+transposeChordName(s.key,currentTransposeShift)+'</span>';el('tempoSlider').value=s.bpm;updateTempo(s.bpm);el('strumPatternText').textContent=s.strumPattern;el('strumName').textContent=s.strumName;el('favBtn').classList.toggle('active',favorites.includes(s.title));el('favBtn').setAttribute('aria-pressed',favorites.includes(s.title));el('chordGrid').replaceChildren();const chords=[...new Set([...s.chords,...Array.from(s.lyrics.matchAll(/\[([A-G][b#]?(?:m|7)?)\]/g),m=>m[1])])];chords.forEach(c=>{const b=document.createElement('button');b.className='chord-box';b.innerHTML='<div class="chord-box-name">'+transposeChordName(c,currentTransposeShift)+'</div>'+renderChordSVG(c);b.onclick=()=>playChordSound(c);el('chordGrid').append(b);});el('lyricsContent').innerHTML=s.lyrics.replace(/\[([A-G][b#]?(?:m|7)?)\]/g,(m,c)=>'<button class="chord-inline" onclick="playChordSound(\''+c+'\')">'+transposeChordName(c,currentTransposeShift)+'</button>');}
+function buildSongDropdown(){el('songDropdown').replaceChildren();filteredSongIndices.forEach(i=>{const o=document.createElement('option');o.value=i;o.textContent=(i+1)+'. '+SONGS[i].title+' — '+SONGS[i].artist;el('songDropdown').append(o);});el('songCountText').textContent=filteredSongIndices.length+' songs';el('songDropdown').disabled=!filteredSongIndices.length;}
+function resetNavigation(){stopSounds();stopScroll();el('lyricsContent').scrollTop=0;}
+function selectSongFromDropdown(v){const n=Number(v);if(!Number.isInteger(n)||!SONGS[n])return;resetNavigation();currentSongIndex=n;renderCurrentSong();}
+function navigateSong(d){if(!filteredSongIndices.length)return;const p=filteredSongIndices.indexOf(currentSongIndex);selectSongFromDropdown(filteredSongIndices[(p+d+filteredSongIndices.length)%filteredSongIndices.length]);}
+function applyFilters(){const q=el('searchInput').value.toLowerCase().trim();filteredSongIndices=SONGS.map((s,i)=>i).filter(i=>{const s=SONGS[i];return(category==='all'||category==='fav'&&favorites.includes(s.title)||s.category===category)&&[s.title,s.artist,s.chords.join(' ')].join(' ').toLowerCase().includes(q);});buildSongDropdown();el('searchStatus').textContent=filteredSongIndices.length?'':'No matching songs. Your current song remains open.';if(filteredSongIndices.length){if(!filteredSongIndices.includes(currentSongIndex))selectSongFromDropdown(filteredSongIndices[0]);else el('songDropdown').value=currentSongIndex;}}
+function filterCategory(c,b){category=c;document.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));b.classList.add('active');applyFilters();}function handleSearch(){applyFilters();}
+function transposeKey(d){stopSounds();currentTransposeShift=Math.max(-12,Math.min(12,currentTransposeShift+d));el('transposeVal').textContent=(currentTransposeShift>0?'+':'')+currentTransposeShift;renderCurrentSong();}
+function updateTempo(v){el('tempoVal').textContent=v+' BPM';}
+function toggleFavorite(){const title=SONGS[currentSongIndex].title;favorites=favorites.includes(title)?favorites.filter(x=>x!==title):[...favorites,title];try{localStorage.setItem('uke_companion_favs',JSON.stringify(favorites));}catch(e){}renderCurrentSong();if(category==='fav')applyFilters();}
+function toggleLayoutMode(){isSideBySide=!isSideBySide;document.body.classList.toggle('side-by-side-mode',isSideBySide);document.body.classList.toggle('stacked-forced',!isSideBySide);el('layoutToggleBtn').textContent=isSideBySide?'📱 Stacked View':'📖 Side-by-Side';}
+function playStrumPattern(){stopSounds();const s=SONGS[currentSongIndex],beat=60/Number(el('tempoSlider').value);const beats=s.strumName.includes('3/4')?[0,1,2]:s.strumPattern.includes('↑')?[0,1,1.5,2.5,3,3.5]:[0,1,2,3];beats.forEach((b,j)=>{const up=j===2||j===3||j===5;const order=up?[3,2,1,0]:[0,1,2,3];order.forEach((i,n)=>playUkuleleString(STRING_FREQS[i]*2**((CHORD_VOICINGS[s.chords[0]][i]+currentTransposeShift)/12),b*beat+n*.025));});showToast('Strumming example');}
+function playIntroTabMelody(){stopSounds();SONGS[currentSongIndex].tabMelody.forEach((f,i)=>playUkuleleString(STRING_FREQS[1]*2**((f+currentTransposeShift)/12),i*.35));showToast('Playing supplied practice melody');}
+function stopScroll(){clearInterval(autoScrollInterval);isAutoScrolling=false;el('autoScrollBtn').textContent='Auto-Scroll';}
+function toggleAutoScroll(){if(isAutoScrolling){stopScroll();return;}isAutoScrolling=true;el('autoScrollBtn').textContent='■ Stop Scroll';autoScrollInterval=setInterval(()=>{const b=el('lyricsContent');b.scrollTop+=1;if(b.scrollTop+b.clientHeight>=b.scrollHeight-1)stopScroll();},50);}
+function changeFontSize(d){fontScale=Math.min(1.3,Math.max(.7,fontScale+d*.08));el('lyricsContent').style.fontSize=fontScale+'rem';}
+function playTunerNote(n,f,b){stopSounds();document.querySelectorAll('.tuner-peg').forEach(x=>x.classList.remove('active'));b.classList.add('active');playUkuleleString(f);el('tunerStatusText').textContent='Playing '+n;setTimeout(()=>{b.classList.remove('active');el('tunerStatusText').textContent='Tap string for pitch';},1300);}
+function showToast(m){clearTimeout(toastTimer);el('toast').textContent=m;el('toast').classList.add('show');toastTimer=setTimeout(()=>el('toast').classList.remove('show'),2000);}
+['G4','C4','E4','A4'].forEach((n,i)=>{const b=document.createElement('button');b.className='tuner-peg';b.innerHTML='<div class="peg-note">'+n[0]+'</div><div class="peg-freq">'+STRING_FREQS[i].toFixed(1)+' Hz</div>';b.onclick=()=>playTunerNote(n,STRING_FREQS[i],b);el('tunerPegs').append(b);});
+filteredSongIndices=SONGS.map((_,i)=>i);buildSongDropdown();renderCurrentSong();document.addEventListener('visibilitychange',()=>{if(document.hidden){stopSounds();stopScroll();}});
+</script>
+<!-- Paste this entire block AFTER your existing </script>, BEFORE </body>. -->
+<style>
+#ukePlayback button,#ukePlayback input,#ukePlayback select{font:inherit}
+#ukePlayback button,#ukePlayback .up-link{min-height:44px;padding:10px 14px;border-radius:12px;border:1px solid #f0eae1;background:white;color:#2d2623;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+#ukePlayback .up-primary{background:#ff4b6e;color:white;border:0;font-weight:700}
+#ukePlayback .up-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:12px 0}
+#ukePlayback p{font-size:.84rem;color:#7c7267;margin:8px 0}
+#ukePlayback input[type=url]{width:100%;padding:12px;border:1px solid #e5dcd2;border-radius:10px}
+#ukePlayback input[type=range]{accent-color:#ff4b6e;max-width:100%}
+#ukePlayback iframe{width:100%;height:clamp(210px,52vw,340px);border:0;border-radius:12px}
+#ukePlayback audio{width:100%}
+#ukePlayback .up-chords{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+#ukePlayback .up-chords span{background:#f4efe8;padding:6px 12px;border-radius:8px;font-weight:700}
+#ukePlayback .up-chords .on{background:#ff4b6e;color:white}
+#ukePlayback summary{cursor:pointer;padding:10px 0}
+#ukePlayback [hidden]{display:none!important}
+</style>
+<script>
+(() => {
+ 'use strict';
+ function install() {
+  if(document.getElementById('ukePlayback')) return;
+  const card=document.createElement('section');
+  card.id='ukePlayback';card.className='card';
+  card.innerHTML=`<div class="section-title">Listen & practise</div>
+   <div class="up-row"><button id="upRecord" class="up-primary">▶ Play recording</button><button id="upClose" hidden>■ Close recording</button><a id="upSearch" class="up-link" target="_blank" rel="noopener noreferrer">Find recording ↗</a></div>
+   <a id="upMusic" class="up-link" target="_blank" rel="noopener noreferrer" hidden>♫ Open in YouTube Music ↗</a><div id="upMedia"></div><p id="upRecordingStatus" role="status"></p>
+   <details><summary>Recording options</summary><p>Paste a YouTube link once for this song, or choose an audio file from your device.</p>
+   <label for="upUrl">YouTube link</label><input id="upUrl" type="url" placeholder="https://www.youtube.com/watch?v=…">
+   <div class="up-row"><button id="upSave">Save link</button><button id="upClear">Reset recording</button></div>
+   <label for="upFile">Audio file (choose again after reopening the app)</label><input id="upFile" type="file" accept="audio/*"></details>
+   <hr style="border:0;border-top:1px solid #f0eae1;margin:18px 0">
+   <strong>Ukulele practice loop</strong><p>Chord-change exercise: one chord per bar, in the order below. This is not the song’s exact arrangement and does not sync to the recording.</p>
+   <div id="upChords" class="up-chords"></div>
+   <div class="up-row"><label>Speed <input id="upTempo" type="range" min="40" max="180" value="80"> <output id="upBpm">80 BPM</output></label></div>
+   <div class="up-row"><label>Pattern <select id="upPattern"><option value="down">Easy downstrums (4 beats)</option><option value="island">Island strum (4 beats)</option><option value="waltz">Waltz (3 beats)</option></select></label><label><input id="upLoop" type="checkbox" checked> Repeat</label></div>
+   <div class="up-row"><button id="upPractice" class="up-primary">▶ Start practice</button><button id="upStop">■ Stop</button></div><p id="upStatus" role="status">Start with slow downstrums, then try the island pattern.</p>`;
+  document.querySelector('.song-header-card').after(card);
+  const $=id=>document.getElementById(id);
+  const seed={"Don't Stop Believin'": "e20MmHgMvlM", "Valerie": "Xdyb9F3oxy4", "Somewhere Over The Rainbow": "j85Q4bWQgCI", "Lean On Me": "79x_XaYEOu4", "Fix You": "3vOfD06jhTQ", "Defying Gravity": "t7YD6bWkuXE", "Keep Holding On": "5mfCFCZDx4o", "Smooth Criminal": "00ce5qjAV_w", "Hey, Soul Sister": "xAtqJSY4TVs", "Landslide": "A6La_yFNO_w"};
+  let saved={};try{const v=JSON.parse(localStorage.getItem('uke_recordings_v1')||'{}');if(v&&typeof v==='object'&&!Array.isArray(v))saved=v;}catch(e){}
+  const files=new Map();let shown=-1, running=false,paused=false,token=0,timer=null,step=0,nextTime=0,sequence=[];
+  const voices=new Set(),visualTimers=new Set();
+  const song=()=>SONGS[currentSongIndex];
+  const key=()=>song().title+'|'+song().artist;
+  const video=()=>seed[song().title]||saved[key()]||'';
+  function persist(){try{localStorage.setItem('uke_recordings_v1',JSON.stringify(saved));return true;}catch(e){return false;}}
+  function parseVideo(value){
+   try{const u=new URL(value);if(!['https:','http:'].includes(u.protocol))return '';let id='';
+    if(u.hostname==='youtu.be')id=u.pathname.slice(1).split('/')[0];
+    else if(['youtube.com','www.youtube.com','m.youtube.com','www.youtube-nocookie.com'].includes(u.hostname))id=u.searchParams.get('v')||(/^\/(?:embed|shorts|live)\/([^/]+)/.exec(u.pathname)||[])[1]||'';
+    return /^[\w-]{11}$/.test(id)?id:'';
+   }catch(e){return '';}
+  }
+  function closeRecording(){$('upMedia').replaceChildren();$('upClose').hidden=true;}
+  function stop(reset=true){
+   token++;running=false;clearInterval(timer);timer=null;
+   for(const id of visualTimers)clearTimeout(id);visualTimers.clear();
+   for(const osc of voices){try{osc.stop();}catch(e){}}voices.clear();
+   paused=!reset;if(reset)step=0;
+   $('upPractice').textContent=paused?'▶ Resume practice':'▶ Start practice';
+   $('upStatus').textContent=paused?'Paused. Resume restarts the current bar.':'Practice stopped.';
+   card.querySelectorAll('.up-chords span').forEach(el=>el.classList.remove('on'));
+  }
+  function paintChords(){
+   $('upChords').replaceChildren();song().chords.forEach(c=>{const el=document.createElement('span');el.textContent=transposeChordName(c,currentTransposeShift);$('upChords').append(el);});
+  }
+  function refresh(){
+   paintChords();if(shown===currentSongIndex)return;
+   stop();closeRecording();shown=currentSongIndex;
+   $('upUrl').value=video()?'https://www.youtube.com/watch?v='+video():'';
+   $('upFile').value='';$('upTempo').value=Math.max(40,Math.min(180,song().bpm));updateTempoLabel();
+   $('upSearch').href=video()?'https://www.youtube.com/watch?v='+video():'https://www.youtube.com/results?search_query='+encodeURIComponent(song().title+' '+song().artist+' official audio');
+   $('upSearch').textContent=video()?'Open on YouTube ↗':'Find recording ↗';
+   $('upMusic').hidden=!video();$('upMusic').href=video()?'https://music.youtube.com/watch?v='+video():'';
+   $('upRecord').textContent=song().category==='glee'?'▶ Play Glee recording':'▶ Play recording';
+   $('upUrl').hidden=!!seed[song().title];$('upSave').hidden=!!seed[song().title];
+   card.querySelector('label[for="upUrl"]').hidden=!!seed[song().title];
+   card.querySelector('details p').textContent=seed[song().title]?'The Glee Cast recording is already selected. You can also choose an audio file from your device.':'Paste a YouTube link once for this song, or choose an audio file from your device.';
+   $('upRecordingStatus').textContent=files.has(key())?'Your audio file is ready.':video()?'Recording selected. Tap Play; if your browser asks, tap play inside the video too.':'Use Find recording, then save its YouTube link here.';
+  }
+  function updateTempoLabel(){$('upBpm').textContent=$('upTempo').value+' BPM';}
+  $('upRecord').onclick=()=>{
+   stopSounds();stop();closeRecording();
+   if(files.has(key())){
+    const a=document.createElement('audio');a.controls=true;a.src=files.get(key());$('upMedia').append(a);a.play().catch(()=>{$('upRecordingStatus').textContent='Tap the audio player’s play button to start.';});
+   }else if(video()){
+    const frame=document.createElement('iframe');frame.src='https://www.youtube.com/embed/'+video()+'?playsinline=1&rel=0&autoplay=1';frame.title=song().title+' recording';frame.allow='autoplay; encrypted-media; picture-in-picture';frame.allowFullscreen=true;frame.referrerPolicy='strict-origin-when-cross-origin';$('upMedia').append(frame);
+    const a=document.createElement('a');a.className='up-link';a.textContent='Open on YouTube ↗';a.href='https://www.youtube.com/watch?v='+video();a.target='_blank';a.rel='noopener noreferrer';$('upMedia').append(a);
+    $('upRecordingStatus').textContent='Tap play in the video. If the embed is unavailable, use Open on YouTube. Recording pitch and speed are separate from practice controls.';
+   }else{$('upRecordingStatus').textContent='Find the recording and paste its link under Choose a recording, or select an audio file.';card.querySelector('details').open=true;return;}
+   $('upClose').hidden=false;
+  };
+  $('upClose').onclick=closeRecording;
+  $('upMusic').onclick=()=>{stopSounds();stop();closeRecording();document.getElementById('mcStop')?.click();};
+  $('upSave').onclick=()=>{const id=parseVideo($('upUrl').value.trim());if(!id){$('upRecordingStatus').textContent='Please paste a valid YouTube video link.';return;}closeRecording();const old=files.get(key());if(old)URL.revokeObjectURL(old);files.delete(key());saved[key()]=id;$('upRecordingStatus').textContent=persist()?'Link saved for this song. Tap Play recording.':'Link ready for this session; browser storage is unavailable.';};
+  $('upClear').onclick=()=>{closeRecording();delete saved[key()];persist();if(files.has(key()))URL.revokeObjectURL(files.get(key()));files.delete(key());shown=-1;refresh();};
+  $('upFile').onchange=()=>{const f=$('upFile').files[0];if(!f)return;closeRecording();if(files.has(key()))URL.revokeObjectURL(files.get(key()));files.set(key(),URL.createObjectURL(f));$('upRecordingStatus').textContent=f.name+' ready. Tap Play recording.';};
+  function pluck(freq,time){
+   const o=audioCtx.createOscillator(),g=audioCtx.createGain(),f=audioCtx.createBiquadFilter();o.type='triangle';o.frequency.value=freq;f.type='lowpass';f.frequency.setValueAtTime(1800,time);f.frequency.exponentialRampToValueAtTime(450,time+.6);g.gain.setValueAtTime(0,time);g.gain.linearRampToValueAtTime(.12,time+.008);g.gain.exponentialRampToValueAtTime(.001,time+.8);o.connect(f);f.connect(g);g.connect(audioCtx.destination);voices.add(o);o.onended=()=>{voices.delete(o);o.disconnect();f.disconnect();g.disconnect();};o.start(time);o.stop(time+.85);
+  }
+  function strum(chord,time,up){const v=CHORD_VOICINGS[chord];if(!v)return;const strings=up?[3,2,1,0]:[0,1,2,3];strings.forEach((s,i)=>pluck(STRING_FREQS[s]*2**((v[s]+currentTransposeShift)/12),time+i*.023));}
+  function later(time,fn){const id=setTimeout(()=>{visualTimers.delete(id);fn();},Math.max(0,(time-audioCtx.currentTime)*1000));visualTimers.add(id);}
+  function schedule(){
+   if(!running)return;
+   if(audioCtx.state!=='running'){stop(false);return;}
+   const beat=60/Number($('upTempo').value);
+   if(nextTime<audioCtx.currentTime-.2)nextTime=audioCtx.currentTime+.04;
+   while(nextTime<audioCtx.currentTime+.12){
+    const bar=sequence.length,chordIdx=Math.floor(step/bar)-1,slot=step%bar;
+    if(chordIdx>=song().chords.length){if(!$('upLoop').checked){const end=nextTime;clearInterval(timer);later(end,()=>stop());return;}step=bar;continue;}
+    const t=nextTime,event=sequence[slot];
+    if(chordIdx<0){if(slot%2===0)pluck(880,t);}
+    else if(event)strum(song().chords[chordIdx],t,event==='u');
+    if(slot%2===0){later(t,()=>{card.querySelectorAll('.up-chords span').forEach((el,i)=>el.classList.toggle('on',i===chordIdx));$('upStatus').textContent=chordIdx<0?'Count in: '+(slot/2+1):transposeChordName(song().chords[chordIdx],currentTransposeShift)+' · Beat '+(slot/2+1);});}
+    nextTime+=beat/2;step++;
+   }
+  }
+  $('upPractice').onclick=async()=>{
+   if(running){step=Math.max(0,Math.floor(Math.max(0,step-1)/sequence.length)*sequence.length);stop(false);return;}
+   closeRecording();const ticket=++token;
+   try{initAudioContext();if(!audioCtx)throw Error();await audioCtx.resume();if(ticket!==token)return;if(audioCtx.state!=='running')throw Error();
+    sequence=$('upPattern').value==='island'?['d',null,'d','u',null,'u','d','u']:$('upPattern').value==='waltz'?['d',null,'d',null,'d',null]:['d',null,'d',null,'d',null,'d',null];
+    if(!paused)step=0;paused=false;running=true;nextTime=audioCtx.currentTime+.08;$('upPractice').textContent='Ⅱ Pause practice';schedule();timer=setInterval(schedule,25);
+   }catch(e){stop();$('upStatus').textContent='Audio could not start. Tap Enable Audio, then try again.';}
+  };
+  $('upStop').onclick=()=>stop();$('upTempo').oninput=updateTempoLabel;$('upPattern').onchange=()=>stop();
+  const originalRender=renderCurrentSong;
+  renderCurrentSong=function(){if(shown!==currentSongIndex)stop();originalRender();refresh();};
+  const originalTranspose=transposeKey;
+  transposeKey=function(delta){stop();originalTranspose(delta);};
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){stop();closeRecording();}});
+  window.addEventListener('pagehide',()=>{stop();closeRecording();});
+  refresh();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
+})();
+</script>
+
+<style>
+#micCoach .mc-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0}#micCoach select,#micCoach input[type=number]{padding:10px;border:1px solid #ddd;border-radius:10px;max-width:100%}#micCoach input[type=number]{width:80px}#mcFeedback{padding:18px;border-radius:14px;background:#f0efed;margin:12px 0;border:2px solid transparent}#mcFeedback.good{background:#e6f9f0;border-color:#0e9f6e;color:#076b4a}#mcFeedback.bad{background:#fff0f3;border-color:#e03a5b;color:#9b1832}#mcVerdict{font-size:1.2rem;font-weight:800}#mcTarget{font-size:2rem;font-weight:800;color:#e03a5b}#mcSteps{display:flex;gap:6px;overflow:auto;padding:10px 0;max-height:110px}#mcSteps span{padding:6px 10px;border-radius:8px;background:#f0eae1;white-space:nowrap}#mcSteps .current{outline:2px solid #ff4b6e;outline-offset:-2px}#mcSteps .good{background:#c9f4dd}#mcSteps .bad{background:#ffd8e1}#mcMeter{width:100%;height:12px;accent-color:#0e9f6e}#micCoach [hidden]{display:none!important}
+</style>
+<script>
+// Experimental pitch-class feedback: an aid to practice, not a performance grade.
+function ukePitchClasses(chord,shift=0){
+ const m=/^([A-G])([b#]?)(m|7)?$/.exec(chord);if(!m)return [];
+ const n={C:0,D:2,E:4,F:5,G:7,A:9,B:11}[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0)+shift;
+ return (m[3]==='m'?[0,3,7]:m[3]==='7'?[0,4,7,10]:[0,4,7]).map(x=>((x+n)%12+12)%12);
+}
+function ukeClassify(chroma,target,shift=0){
+ const total=chroma.reduce((a,b)=>a+b,0);if(total<=0)return {kind:'neutral',label:'Listening…'};
+ const p=chroma.map(x=>x/total),score=c=>{const pcs=ukePitchClasses(c,shift);const purity=pcs.reduce((a,i)=>a+p[i],0),coverage=pcs.filter(i=>p[i]>.075).length/pcs.length;return {name:c,purity,coverage,value:purity*.7+coverage*.3};};
+ const expected=score(target),candidates=[];
+ for(const n of ['C','C#','D','Eb','E','F','F#','G','G#','A','Bb','B'])for(const suffix of ['','m','7'])candidates.push(score(n+suffix));
+ candidates.sort((a,b)=>b.value-a.value);const best=candidates[0];
+ if(expected.purity>.86&&expected.coverage===1&&expected.value>=best.value-.025)return {kind:'good',label:'✓ Sounds like '+transposeChordName(target,shift)};
+ if(best.purity>.88&&best.coverage===1&&best.value-expected.value>.13)return {kind:'bad',label:'Try again · sounds closer to '+transposeChordName(best.name,shift)};
+ return {kind:'neutral',label:'Not clear yet · strum all four strings'};
+}
+(()=>{
+ function install(){
+ const card=document.createElement('section');card.id='micCoach';card.className='card';
+ card.innerHTML=`<div class="section-title">🎤 Listen & check · Beta</div><p class="muted">Tune to gCEA first. Play one clean strum in a quiet room. Feedback is approximate; grey means uncertain, not wrong. Audio is analysed on your device and is not saved or uploaded.</p>
+ <div class="mc-row"><label>Mode <select id="mcMode"><option value="single">Single chord</option><option value="song">Song practice</option></select></label><label id="mcChordLabel">Chord <select id="mcChord"></select></label></div>
+ <div id="mcSongOptions" hidden><p class="muted">Follows the chord markers in the supplied lyric excerpt, including repeats. It is not the full recording’s arrangement. Choose your timing, or let each likely match move you forward.</p><div class="mc-row"><label>Advance <select id="mcAdvance"><option value="wait">Wait for a match</option><option value="timed">Timed chord changes</option></select></label><label>BPM <input id="mcTempo" type="number" min="40" max="180" value="70"></label><label>Beats per chord <input id="mcBeats" type="number" min="1" max="16" value="4"></label></div><div class="mc-row"><button id="mcPrev">◄ Back</button><button id="mcNext">Skip ►</button><button id="mcRestart">Restart sequence</button></div><div id="mcSteps"></div></div>
+ <div class="mc-row"><div>Play <span id="mcTarget">C</span></div><div id="mcDiagram"></div><span id="mcNextText" class="muted"></span></div>
+ <div id="mcFeedback"><div id="mcVerdict" role="status" aria-live="polite">Ready to listen</div><div id="mcDetail" class="muted">Tap Start microphone and allow access.</div></div><label class="muted" for="mcMeter">Microphone level</label><meter id="mcMeter" min="0" max="1" value="0"></meter>
+ <div class="mc-row"><button id="mcStart" class="btn-action">🎤 Start microphone</button><button id="mcStop">■ Stop microphone</button></div><p id="mcSummary" class="muted"></p><p class="muted">Keep recordings and other audio off while checking. If this HTML viewer cannot access the microphone, open the app in a browser that permits microphone access, or serve it over HTTPS.</p>`;
+ document.querySelector('.app-workspace').before(card);
+ const $=id=>document.getElementById(id);let stream=null,ctx=null,source=null,analyser=null,interval=null,generation=0,starting=false,seq=[],index=0,results=[],since=0,startTime=0,lastFrame=0,quiet=[],noise=.003,history=[],lastKind='',repeat=0,advanceAt=0,shown=-1,shift=0,finished=false;
+ const mode=()=>$('mcMode').value, target=()=>mode()==='song'?seq[index]:$('mcChord').value;
+ function feedback(kind,label,detail=''){ $('mcFeedback').className=kind==='neutral'?'':kind;$('mcVerdict').textContent=label;$('mcDetail').textContent=detail;}
+ function summary(){const good=results.filter(x=>x==='good').length,bad=results.filter(x=>x==='bad').length,uncertain=results.filter(x=>x==='uncertain').length,skipped=results.filter(x=>x==='skipped').length;$('mcSummary').textContent=mode()==='song'?`${good} likely matches · ${bad} likely mismatches · ${uncertain} unclear · ${skipped} skipped. These are practice estimates.`:'';}
+ function draw(){const c=target()||'C';$('mcTarget').textContent=transposeChordName(c,currentTransposeShift);$('mcDiagram').innerHTML=renderChordSVG(c);$('mcNextText').textContent=mode()==='song'?`${index+1} / ${seq.length} · Next: ${seq[index+1]?transposeChordName(seq[index+1],currentTransposeShift):'finish'}`:'';Array.from($('mcSteps').children).forEach((n,i)=>{n.className=(i===index?'current ':'')+(results[i]||'');});const n=$('mcSteps').children[index];if(n)$('mcSteps').scrollLeft=n.offsetLeft-$('mcSteps').offsetLeft-15;summary();}
+ function resetEvidence(){history=[];lastKind='';repeat=0;advanceAt=0;since=performance.now();}
+ function build(){stop();const s=SONGS[currentSongIndex];shown=currentSongIndex;shift=currentTransposeShift;seq=Array.from(s.lyrics.matchAll(/\[([A-G][b#]?(?:m|7)?)\]/g),m=>m[1]);if(!seq.length)seq=s.chords.slice();index=0;results=[];finished=false;$('mcChord').replaceChildren();[...new Set([...s.chords,...seq])].forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=transposeChordName(c,currentTransposeShift);$('mcChord').append(o);});$('mcSteps').replaceChildren();seq.forEach(c=>{const n=document.createElement('span');n.textContent=transposeChordName(c,currentTransposeShift);$('mcSteps').append(n);});resetEvidence();draw();}
+ function stop(message=true){generation++;starting=false;clearInterval(interval);interval=null;if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}if(source)source.disconnect();source=null;analyser=null;if(ctx){ctx.close().catch(()=>{});ctx=null;}$('mcStart').disabled=false;$('mcStart').textContent='🎤 Start microphone';$('mcMeter').value=0;resetEvidence();if(message)feedback('neutral','Microphone off','Tap Start microphone to continue.');}
+ function next(result){if(mode()!=='song')return;results[index]=result;if(index+1>=seq.length){finished=true;stop(false);draw();feedback('neutral','Sequence complete','Review your practice estimates below, or restart.');return;}index++;resetEvidence();draw();feedback('neutral','Play '+transposeChordName(target(),currentTransposeShift),'Let the previous chord fade, then strum.');}
+ function bounded(id,min,max,fallback){let v=Number($(id).value);if(!Number.isFinite(v)||v<min||v>max)v=fallback;$(id).value=v;return v;}
+ function frame(){
+ if(!analyser||!ctx)return;const now=performance.now();if(ctx.state!=='running'){stop();return;}
+ analyser.getFloatTimeDomainData(wave);let sum=0;for(const v of wave)sum+=v*v;const rms=Math.sqrt(sum/wave.length);$('mcMeter').value=Math.min(1,rms*12);
+ if(now-startTime<1400){quiet.push(rms);feedback('neutral','Measuring room noise…','Keep quiet briefly, then strum when prompted.');return;}
+ if(quiet.length){quiet.sort((a,b)=>a-b);noise=Math.max(.002,quiet[Math.floor(quiet.length*.5)]*3);quiet=[];since=now;}
+ if(mode()==='song'&&$('mcAdvance').value==='timed'){
+ const beat=60000/bounded('mcTempo',40,180,70),duration=beat*bounded('mcBeats',1,16,4);
+ if(now-since>=duration){next(results[index]||'uncertain');return;}
+ $('mcNextText').textContent=`${index+1} / ${seq.length} · Beat ${Math.floor((now-since)/beat)+1} / ${$('mcBeats').value}`;
+ }
+ if(advanceAt&&now>=advanceAt){next('good');return;}
+ if(now-since<400)return;
+ if(rms<noise){history=[];repeat=0;feedback('neutral','Listening…','Strum all four strings clearly.');return;}
+ if(rms>.45){feedback('neutral','Too loud / clipping','Move the phone a little farther away.');return;}
+ analyser.getFloatFrequencyData(spectrum);const chroma=new Array(12).fill(0),peaks=[],bin=ctx.sampleRate/analyser.fftSize;
+ for(let k=Math.ceil(220/bin);k<Math.min(spectrum.length-1,Math.floor(1500/bin));k++)if(spectrum[k]>-75&&spectrum[k]>spectrum[k-1]&&spectrum[k]>=spectrum[k+1]){
+  const left=spectrum[k-1],mid=spectrum[k],right=spectrum[k+1],den=left-2*mid+right;const delta=Number.isFinite(den)&&den!==0?Math.max(-.5,Math.min(.5,.5*(left-right)/den)):0;
+  const f=(k+delta)*bin,midi=69+12*Math.log2(f/440),nearest=Math.round(midi);if(Math.abs(midi-nearest)>.32)continue;
+  peaks.push({f,midi:nearest,amp:10**(mid/20)});
+ }
+ const max=Math.max(0,...peaks.map(p=>p.amp));
+ for(const p of peaks){if(p.amp<max*.12)continue;let weight=1;for(const low of peaks){if(low.f>=p.f*.8||low.amp<p.amp*.45)continue;const ratio=p.f/low.f,h=Math.round(ratio);if(h>=2&&h<=5&&Math.abs(ratio-h)<.035)weight=Math.min(weight,.15);}chroma[((p.midi%12)+12)%12]+=p.amp*weight;}
+ history.push(chroma);if(history.length>4)history.shift();const smooth=new Array(12).fill(0);for(const a of history)for(let i=0;i<12;i++)smooth[i]+=a[i];
+ const verdict=ukeClassify(smooth,target(),currentTransposeShift);if(verdict.kind===lastKind)repeat++;else{lastKind=verdict.kind;repeat=1;}
+ if(repeat<3){feedback('neutral','Listening to your chord…','Hold it briefly while the strings ring.');return;}
+ feedback(verdict.kind,verdict.label,verdict.kind==='good'?'Likely match. This does not check fingering, tone or rhythm.':verdict.kind==='bad'?'Check the diagram and try a clean strum.':'Try a quieter room and check tuning.');
+ if(mode()==='song'){
+  if(verdict.kind==='good'){results[index]='good';draw();if($('mcAdvance').value==='wait'&&!advanceAt)advanceAt=now+900;}
+  else if(verdict.kind==='bad'&&results[index]!=='good'){results[index]='bad';draw();}
+ }
+ }
+ let wave,spectrum;
+ $('mcStart').onclick=async()=>{
+ if(starting||stream)return;
+ if(!navigator.mediaDevices?.getUserMedia||!window.isSecureContext){feedback('neutral','Microphone unavailable in this viewer','Try a browser with microphone support. If local files are blocked, this app needs an HTTPS web address.');return;}
+ stop(false);const request=++generation;starting=true;$('mcStart').disabled=true;feedback('neutral','Allow microphone access','Your phone may show a permission prompt.');
+ // Stop every built-in playback source before listening.
+ stopSounds();$('upStop')?.click();$('upClose')?.click();
+ if(finished){index=0;results=[];finished=false;draw();}
+ try{const AC=window.AudioContext||window.webkitAudioContext;ctx=new AC();await ctx.resume();const acquired=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false},video:false});if(request!==generation){acquired.getTracks().forEach(t=>t.stop());return;}stream=acquired;source=ctx.createMediaStreamSource(stream);analyser=ctx.createAnalyser();analyser.fftSize=8192;analyser.smoothingTimeConstant=.15;source.connect(analyser);wave=new Float32Array(analyser.fftSize);spectrum=new Float32Array(analyser.frequencyBinCount);quiet=[];noise=.003;startTime=performance.now();resetEvidence();starting=false;$('mcStart').textContent='● Microphone on';interval=setInterval(frame,100);stream.getAudioTracks().forEach(t=>t.onended=()=>{if(stream)stop();});}
+ catch(e){if(request!==generation)return;stop(false);feedback('neutral','Could not start microphone',e.name==='NotAllowedError'?'Microphone permission was denied. Allow it in your browser settings, then retry.':e.name==='NotFoundError'?'No microphone was found.':'This viewer could not open the microphone. Try a supported browser or an HTTPS-hosted copy.');}
+ };
+ $('mcStop').onclick=()=>stop();$('mcMode').onchange=()=>{$('mcSongOptions').hidden=mode()!=='song';$('mcChordLabel').hidden=mode()==='song';build();};$('mcChord').onchange=()=>{resetEvidence();draw();feedback('neutral','Ready for '+transposeChordName(target(),currentTransposeShift),'Strum when ready.');};
+ $('mcNext').onclick=()=>{if(!finished)next('skipped');};$('mcPrev').onclick=()=>{index=Math.max(0,index-1);finished=false;results[index]=undefined;resetEvidence();draw();};$('mcRestart').onclick=()=>build();
+ ['mcAdvance','mcTempo','mcBeats'].forEach(id=>$(id).onchange=()=>{bounded('mcTempo',40,180,70);bounded('mcBeats',1,16,4);resetEvidence();});
+ // Synth/recording playback must not be scored as the user's ukulele.
+ document.addEventListener('click',e=>{if(!stream&&!starting)return;const b=e.target.closest('button');if(b&&!card.contains(b)&&(/playChordSound|playStrumPattern|playIntroTabMelody/.test(b.getAttribute('onclick')||'')||b.classList.contains('chord-box')||b.classList.contains('tuner-peg')||['upRecord','upPractice'].includes(b.id)))stop();},true);
+ const render=renderCurrentSong;renderCurrentSong=function(){render();if(shown!==currentSongIndex||shift!==currentTransposeShift)build();};
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});window.addEventListener('pagehide',()=>stop());build();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
+})();
+</script>
+
+</body></html>
